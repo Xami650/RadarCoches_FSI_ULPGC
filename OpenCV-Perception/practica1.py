@@ -50,11 +50,26 @@ def obtener_coches(video, fondo):
         diff = cv2.absdiff(frame, background)
         gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
         
-        ret, umbralizado = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY) # Los pixeles por debajo de 50 se ponen a 0, los demas a 255
+        _, umbralizado = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY) # Los pixeles por debajo de 50 se ponen a 0, los demas a 255
+
+        contours, _ = cv2.findContours(umbralizado, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # Encontrar contornos
+        
+        output_frame = frame.copy() # Trabajamos con copias de los frames (buena práctica)
+        
+        min_area = 500 # Área mínima del rectángulo para ser considerada un coche
+
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area > min_area:
+                x, y, w, h = cv2.boundingRect(contour) #Vertice sup izq. / altura / ancho. Nos da el mínimo rect.
+                # Dibujar el rectángulo en el frame
+                cv2.rectangle(output_frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # 255: Green
+                
         cv2.imshow("Diferencia sin umbral", diff)
         cv2.imshow("Umbralizado", umbralizado)
-    
-    
+        cv2.imshow("Blops", output_frame)
+                
+            
 
 
 
